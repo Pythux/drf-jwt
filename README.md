@@ -1,5 +1,5 @@
 # drf-jwt
-JSON Web Token plugin for Django REST Framework,
+JSON Web Token based authentication using Django REST Framework,
 the JWT `encoded in base64` is put in the headers:
 
 > `Authorization: Bearer <token>`
