@@ -4,6 +4,7 @@ from rest_framework import exceptions
 from rest_framework.authentication import (
     BaseAuthentication, get_authorization_header
 )
+from .settings import api_settings
 import jwt
 from base64 import b64encode
 from datetime import timedelta, datetime
@@ -29,7 +30,7 @@ class JSONWebTokenAuthentication(BaseAuthentication):
     def valide_jwt(self, jwt_value):
         """verify the jwt token and return it's decoded value"""
         try:
-            payload = jwt.decode(jwt_value, 'secret', algorithms=['HS256'])
+            payload = jwt.decode(jwt_value, api_settings.JWT_SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignature:
             msg = _('Token has expired.')
             raise exceptions.AuthenticationFailed(msg)

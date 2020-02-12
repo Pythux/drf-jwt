@@ -4,11 +4,12 @@ from rest_framework import status, permissions, authentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-import jwt
-from datetime import datetime
+from .settings import api_settings
+
 
 from .validators import Credentials
 from .authentication import JSONWebTokenAuthentication
+from .utils import gen_jwt
 
 
 class Auth(APIView):
@@ -25,25 +26,26 @@ class Auth(APIView):
         return Response(self.gen_jwt(request.user))
 
     def post(self, request, format=None):
-        c = Credentials(data=request.data)
-        if not c.is_valid():
-            return Response(c.errors)
+        login_credentials = Credentials(data=request.data)
+        login_credentials.is_valid(raise_exception=True)
 
-        user = authenticate(username=c.validated_data['login'],
-                            password=c.validated_data['password'])
-        if user is None:
-            msg = 'Unable to log in with provided credentials.'
-            return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
+        return response_jwt_from_credentials(login_credentials)
 
-        if not user.is_active:
-            msg = 'User account is disabled.'
-            return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(self.gen_jwt(user))
+def response_jwt_from_credentials(login_credentials):
+    credentials = login_credentials
+    if api_settings.USER_LOGIN not in login_credentials:
+        credentials = {
+            api_settings.USER_LOGIN: login_credentials.validated_data['login'],
+            'password': login_credentials.validated_data['password']
+        }
+    user = authenticate(**credentials)
+    if user is None:
+        msg = 'Unable to log in with provided credentials.'
+        return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
 
-    def gen_jwt(self, user):
-        payload = {'id': user.id, 'iat': datetime.utcnow()}
-        encoded = jwt.encode(payload, 'secret', algorithm='HS256').decode()
-        encoded = encoded.split('.', 1)[1]  # no header
-        return {'jwt': encoded}  # the user.id is in the token at field "id"
-        # return {'jwt': encoded, 'userId': user.id}
+    if not user.is_active:
+        msg = 'User account is disabled.'
+        return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(gen_jwt(user))
