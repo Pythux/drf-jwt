@@ -4,8 +4,6 @@ from rest_framework import status, permissions, authentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .settings import api_settings
-
 
 from .validators import Credentials
 from .authentication import JSONWebTokenAuthentication
@@ -32,14 +30,8 @@ class Auth(APIView):
         return response_jwt_from_credentials(login_credentials)
 
 
-def response_jwt_from_credentials(login_credentials):
-    credentials = login_credentials
-    if api_settings.USER_LOGIN not in login_credentials:
-        credentials = {
-            api_settings.USER_LOGIN: login_credentials.validated_data['login'],
-            'password': login_credentials.validated_data['password']
-        }
-    user = authenticate(**credentials)
+def response_jwt_from_credentials(credentials):
+    user = authenticate(**credentials.data)
     if user is None:
         msg = 'Unable to log in with provided credentials.'
         return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
