@@ -16,7 +16,6 @@ classifiers = [
     'Environment :: Web Environment',
     'Framework :: Django',
     'Intended Audience :: Developers',
-    'Programming Language :: Python :: 3',
     'Topic :: Internet :: WWW/HTTP',
 ]
 
