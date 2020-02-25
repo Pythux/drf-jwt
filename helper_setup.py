@@ -26,14 +26,31 @@ def activate_cmd_publish():
         if `python setup.py publish`: will build / upload / clean
     """
     if sys.argv[-1] == 'publish':
-        clean_dirs()
-        check_installed_tools()
-        build_wheel()
-        upload_wheel()
-        clean_dirs()
-
-        print_git_tag_info()
+        publish()
         sys.exit()
+
+
+def activate_cmd_build():
+    """
+        need to be run in setup.py to take action,
+        if `python setup.py publish`: will build / upload / clean
+    """
+    if sys.argv[-1] == 'build':
+        wheel()
+        sys.exit()
+
+
+def wheel():
+    clean_dirs()
+    check_installed_tools()
+    build_wheel()
+
+
+def publish():
+    wheel()
+    upload_wheel()
+    clean_dirs()
+    print_git_tag_info()
 
 
 def check_installed_tools():
@@ -75,5 +92,5 @@ def clean_dirs():
 def print_git_tag_info():
     __init__ = import_module(find_packages()[0])
     print('\nYou probably want to also tag the version now:')
-    print("  git tag -a {0} -m 'version {0}'".format(__init__.__version__))
+    print("  git tag -a v{0} -m 'release {0}'".format(__init__.__version__))
     print('  git push --tags')
