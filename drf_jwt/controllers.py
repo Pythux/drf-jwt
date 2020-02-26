@@ -21,7 +21,7 @@ class Auth(APIView):
             return Response({"detail": "Authentication credentials were not provided."},
                             status=status.HTTP_401_UNAUTHORIZED,
                             headers={'WWW-Authenticate': 'Basic realm="api"'})
-        return Response(self.gen_jwt(request.user))
+        return Response(gen_jwt(request.user))
 
     def post(self, request, format=None):
         login_credentials = Credentials(data=request.data)
