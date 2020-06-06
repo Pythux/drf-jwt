@@ -21,7 +21,7 @@ class Auth(APIView):
             return Response({"detail": "Authentication credentials were not provided."},
                             status=status.HTTP_401_UNAUTHORIZED,
                             headers={'WWW-Authenticate': 'Basic realm="api"'})
-        return Response(gen_jwt(request.user))
+        return Response({'jwt': gen_jwt(request.user)})  # the user.id is in the token at field "id"
 
     def post(self, request, format=None):
         login_credentials = Credentials(data=request.data)
@@ -40,4 +40,4 @@ def response_jwt_from_credentials(credentials):
         msg = 'User account is disabled.'
         return Response({'detail': msg}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response(gen_jwt(user))
+    return Response({'jwt': gen_jwt(user)})  # the user.id is in the token at field "id"

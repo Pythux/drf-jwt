@@ -54,7 +54,7 @@ class JSONWebTokenAuthentication(BaseAuthentication):
         """Returns an active user that matches the payload's user id."""
         User = get_user_model()
         try:
-            user = User.objects.get(pk=payload['id'])
+            user = User.objects.get(pk=api_settings.GET_PAYLOAD_USER_ID(payload))
         except User.DoesNotExist:
             msg = _('Invalid signature.')
             raise exceptions.AuthenticationFailed(msg)
